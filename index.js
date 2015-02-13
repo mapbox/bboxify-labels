@@ -208,8 +208,8 @@ function bboxifyLabel(polyline, anchor, labelLength) {
     for (var j = 0; j < nBoxes + 1; j++) {
       
       bboxes.push({
-        x: x0 - 0.5 * width,
-        y: y0 - 0.5 * height,
+        x: x0,
+        y: y0,
         width: width,
         height: height
       });
@@ -221,5 +221,7 @@ function bboxifyLabel(polyline, anchor, labelLength) {
     return bboxes;
   });
   
-  return bboxes;
+  return bboxes.reduce(function(a, b) {
+    return a.concat(b);
+  });
 }
