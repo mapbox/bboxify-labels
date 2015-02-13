@@ -102,8 +102,10 @@ function createPolylineToXY(segments) {
     var x0 = p0[0], y0 = p0[1];
     var x1 = p1[0], y1 = p1[1];
     
+    var direction = Math.sign(x1 - x0);
+    
     var m = (y1 - y0) / (x1 - x0);
-    var x = x0 + Math.sqrt(segmentDistance * segmentDistance / (1 + m * m));
+    var x = x0 + direction * Math.sqrt(segmentDistance * segmentDistance / (1 + m * m));
     var y = m * (x - x0) + y0;
     
     return [x, y];
@@ -142,18 +144,12 @@ function bboxifyLabel(polyline, anchor, labelLength) {
   });
   var cumulativeDistances = [0].concat(distances.reduce(cumulative, []));
   
-  
-  console.log('segments.length', segments.length);
-  console.log('cumulativeDistances', cumulativeDistances.length);
-  
   var polyline2line = createPolylineToLine(cumulativeDistances);
   var line2polyline = createLineToPolyline(cumulativeDistances);
   var polyline2xy = createPolylineToXY(segments);
   
   var anchorSegment = segments[anchor.index];
   var anchorSegmentDistance = getDistance(anchorSegment[0], anchor.point);
-  
-  console.log('anchorSegmentDistance', anchorSegmentDistance);
   
   var anchorLineCoordinate = polyline2line(anchor.index, anchorSegmentDistance);
   
@@ -166,39 +162,20 @@ function bboxifyLabel(polyline, anchor, labelLength) {
   var labelStartPolylineCoordinate = line2polyline(labelStartLineCoordinate);
   var labelEndPolylineCoordinate = line2polyline(labelEndLineCoordinate);
   
-  console.log('cumulativeDistances', cumulativeDistances);
-  console.log('anchorLineCoordinate', anchorLineCoordinate);
-  console.log('anchorPolylineCoordinate', line2polyline(anchorLineCoordinate));
-  console.log('labelStartLineCoordinate', labelStartLineCoordinate);
-  console.log('labelEndLineCoordinate', labelEndLineCoordinate);
-  console.log('labelStartPolylineCoordinate', labelStartPolylineCoordinate);
-  console.log('labelEndPolylineCoordinate', labelEndPolylineCoordinate);
-  
   var p0 = polyline2xy(labelStartPolylineCoordinate[0], labelStartPolylineCoordinate[1]);
   var p1 = polyline2xy(labelEndPolylineCoordinate[0], labelEndPolylineCoordinate[1]);
   
-  console.log('labelStartXY', p0);
+  // Get all segments that have the label
+  var startSegment = labelStartPolylineCoordinate[0];
+  var endSegment = labelEndPolylineCoordinate[0];
   
-  bboxes = [];
-  bboxes.push([{
-    x: p0[0] - 0.5 * width,
-    y: p0[1] - 0.5 * height,
-    width: width,
-    height: height
-  }]);
-  console.log(bboxes);
+  var labeledSegments = segments.slice(startSegment, endSegment + 1);
   
-  bboxes.push([{
-    x: p1[0] - 0.5 * width,
-    y: p1[1] - 0.5 * height,
-    width: width,
-    height: height
-  }]);
+  // Change the start point of the outer segments to match the extent of the label
+  labeledSegments[0][0] = p0;
+  labeledSegments[labeledSegments.length - 1][1] = p1;
   
-  return bboxes;
-  
-  
-  var bboxes = segments.map(function(segment, i) {
+  var bboxes = labeledSegments.map(function(segment, i) {
     
     var p0 = segment[0];
     var p1 = segment[1];

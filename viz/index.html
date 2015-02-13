@@ -88,22 +88,22 @@
         points.push([x0, y]);
       }
       
-      var points = [[10, 10], [100, 100], [200, 200]];
+      // var points = [[10, 10], [100, 100], [200, 200]];
       // var points = [[50, 100], [200, 100], [250, 100]];
       
-      // var anchor = getRandomAnchor(points);
+      var anchor = getRandomAnchor(points);
       // var anchor = {
       //   index: 0,
       //   point: [117.16546011157334, 100]
       // }
       
-      var anchor = {
-        index: 0,
-        point: [81.52352363569662, 81.52352363569662]
-      }
+      // var anchor = {
+      //   index: 0,
+      //   point: [81.52352363569662, 81.52352363569662]
+      // }
       
-      // var labelLength = getRandomInRange(10, 20);
-      var labelLength = 20;
+      // var labelLength = getRandomInRange(150, 200);
+      var labelLength = 200;
       svg.append('circle')
       .attr('r', 4)
       .attr('cx', anchor.point[0])

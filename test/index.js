@@ -123,7 +123,6 @@ test('polyline2xy', function(t) {
   var expected = [46, 32];
   
   var xy = polyline2xy(segmentIndex, segmentDistance);
-  console.log(xy);
   
   t.deepEqual(xy, expected);
   t.end();
