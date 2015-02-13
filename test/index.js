@@ -114,13 +114,13 @@ test('line2polyline', function(t) {
 
 test('polyline2xy', function(t) {
   
-  var points = [[10, 10], [30, 20], [60, 50]];
+  var points = [[10, 10], [30, 20], [70, 50]];
   var segments = bboxify.toSegments(points);
   
   var polyline2xy = bboxify.createPolylineToXY(segments);
   var segmentIndex = 1;
   var segmentDistance = 20;
-  var expected = [47.14985851425088, 30.289915108550527];
+  var expected = [46, 32];
   
   var xy = polyline2xy(segmentIndex, segmentDistance);
   console.log(xy);

@@ -96,9 +96,15 @@ function createPolylineToXY(segments) {
   return function polyline2xy(segmentIndex, segmentDistance) {
     var segment = segments[segmentIndex];
     
-    var x = segment[0][0] + segmentDistance;
-    // var x = segmentDistance;
-    var y = linear(segment[0], segment[1], x);
+    var p0 = segment[0];
+    var p1 = segment[1];
+    
+    var x0 = p0[0], y0 = p0[1];
+    var x1 = p1[0], y1 = p1[1];
+    
+    var m = (y1 - y0) / (x1 - x0);
+    var x = x0 + Math.sqrt(segmentDistance * segmentDistance / (1 + m * m));
+    var y = m * (x - x0) + y0;
     
     return [x, y];
   }
@@ -142,17 +148,7 @@ function bboxifyLabel(polyline, anchor, labelLength) {
   
   var polyline2line = createPolylineToLine(cumulativeDistances);
   var line2polyline = createLineToPolyline(cumulativeDistances);
-  
-  
-  function polyline2xy(segmentIndex, segmentDistance) {
-    var segment = segments[segmentIndex];
-    
-    var x = segment[0][0] + segmentDistance;
-    // var x = segmentDistance;
-    var y = linear(segment[0], segment[1], x);
-    
-    return [x, y];
-  }
+  var polyline2xy = createPolylineToXY(segments);
   
   var anchorSegment = segments[anchor.index];
   var anchorSegmentDistance = getDistance(anchorSegment[0], anchor.point);
