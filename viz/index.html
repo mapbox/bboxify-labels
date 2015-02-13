@@ -36,9 +36,32 @@
       return r;
     }
     
+    
     function getRandomInRange(x0, x1) {
       return Math.random() * (x1 - x0) + x0;
     }
+    
+    
+    function getRandomAnchor(points) {
+      
+      var nSegments = points.length - 1;
+      var segmentIndex = ~~(getRandomInRange(0, nSegments));
+      
+      var p0 = points[segmentIndex];
+      var p1 = points[segmentIndex + 1];
+      
+      var x0 = p0[0], y0 = p0[1];
+      var x1 = p1[0], y1 = p1[1];
+      
+      var x = getRandomInRange(p0[0], p1[0]);
+      var y = (y1 - y0) / (x1 - x0) * (x - x1) + y1;
+      
+      return {
+        point: [x, y],
+        index: segmentIndex
+      };
+    }
+    
     
     function onDOM() {
       window.removeEventListener('DOMContentLoaded');
@@ -59,15 +82,32 @@
       for (var i = 0; i < nPoints; i++) {
 
         // Generate random rightward points
-
         var x0 = getRandomInRange(x0, width);
         var y = getRandomInRange(0, height);
 
         points.push([x0, y]);
       }
       
-      // var points = [[10, 10], [100, 100], [200, 200]];
+      var points = [[10, 10], [100, 100], [200, 200]];
       // var points = [[50, 100], [200, 100], [250, 100]];
+      
+      // var anchor = getRandomAnchor(points);
+      // var anchor = {
+      //   index: 0,
+      //   point: [117.16546011157334, 100]
+      // }
+      
+      var anchor = {
+        index: 0,
+        point: [81.52352363569662, 81.52352363569662]
+      }
+      
+      // var labelLength = getRandomInRange(10, 20);
+      var labelLength = 20;
+      svg.append('circle')
+      .attr('r', 4)
+      .attr('cx', anchor.point[0])
+      .attr('cy', anchor.point[1]);
       
       // Fill in DOM with point coordinates
       d3.select('ul.points')
@@ -97,9 +137,11 @@
       var polyLine = svg.append('path')
           .attr('d', lineFunction(points))
       
-      var bboxes = bboxify(points).reduce(function(a, b) {
+      var bboxes = bboxifyLabel(points, anchor, labelLength).reduce(function(a, b) {
         return a.concat(b);
       });
+      
+      console.log("BBOXIFIED", bboxes);
       
       for (var i = 0; i < bboxes.length; i++) {
         var bbox = bboxes[i];
