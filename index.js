@@ -176,14 +176,19 @@ function bboxifyLabel(polyline, anchor, labelLength) {
   labeledSegments[labeledSegments.length - 1][1] = p1;
   
   var bboxes = labeledSegments.map(function(segment, i) {
+    var segmentIndex = startSegment + i;
     
     var p0 = segment[0];
     var p1 = segment[1];
-    var segmentLength = getDistance(p0, p1);
-    var direction = Math.sign(p1[0] - p0[0]);
     
-    var adjacent = getDistance(p0, [p0[0], p1[1]]);
-    var opposite = getDistance(p0, [p1[0], p0[1]]);
+    var x0 = p0[0], y0 = p0[1];
+    var x1 = p1[0], y1 = p1[1];
+    
+    var segmentLength = getDistance(p0, p1);
+    var direction = Math.sign(x1 - x0);
+    
+    var adjacent = getDistance(p0, [x0, y1]);
+    var opposite = getDistance(p0, [x1, y0]);
     
     // TODO: Find smallest angle of incident with axis without
     //       comparison?
@@ -195,25 +200,29 @@ function bboxifyLabel(polyline, anchor, labelLength) {
     var nBoxes = ~~(segmentLength / d + 0.5);
     
     // Get parameters for the segment
-    var m = (p1[1] - p0[1]) / (p1[0] - p0[0]);
-    var b = p0[1] - m * p0[0];
+    var m = (y1 - y0) / (x1 - x0);
+    var b = y0 - m * x0;
     
     var lineFunction = function(x) {
       return m * x + b;
     }
     
     var bboxes = [];
-    var x0 = p0[0];
-    var y0 = p0[1];
     for (var j = 0; j < nBoxes + 1; j++) {
+      
+      var distanceToSegmentOrigin = getDistance(p0, [x0, y0]);
+      var lineCoordinate = polyline2line(segmentIndex, distanceToSegmentOrigin);
+      var distanceToAnchor = lineCoordinate - anchorLineCoordinate;
       
       bboxes.push({
         x: x0,
         y: y0,
         width: width,
-        height: height
+        height: height,
+        distanceToAnchor: distanceToAnchor
       });
       
+      // Step along the line
       x0 = x0 + direction * d / Math.sqrt(1 + m * m);
       y0 = lineFunction(x0);
     }
