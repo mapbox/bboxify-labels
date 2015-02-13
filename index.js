@@ -7,7 +7,8 @@ module.exports = {
   linear: linear,
   cumulative: cumulative,
   createPolylineToLine: createPolylineToLine,
-  createLineToPolyline: createLineToPolyline
+  createLineToPolyline: createLineToPolyline,
+  createPolylineToXY: createPolylineToXY
 }
 
 
@@ -75,6 +76,7 @@ function createPolylineToLine(cumulativeDistances) {
 function createLineToPolyline(cumulativeDistances) {
   
   return function line2polyline(lineDistance) {
+    
     // Determine when the line distance exceeds the cumulative distance
     var segmentIndex = cumulativeDistances.slice(1).map(function(d) {
       return d < lineDistance;
@@ -84,6 +86,21 @@ function createLineToPolyline(cumulativeDistances) {
     var segmentDistance = lineDistance - cumulativeDistances[segmentIndex];
     
     return [segmentIndex, segmentDistance];
+  }
+  
+}
+
+
+function createPolylineToXY(segments) {
+  
+  return function polyline2xy(segmentIndex, segmentDistance) {
+    var segment = segments[segmentIndex];
+    
+    var x = segment[0][0] + segmentDistance;
+    // var x = segmentDistance;
+    var y = linear(segment[0], segment[1], x);
+    
+    return [x, y];
   }
   
 }
