@@ -1,5 +1,10 @@
 'use strict';
 
+// Fix the bounding box dimensions for now
+var width = 30;
+var height = 30;
+
+
 module.exports = {
   bboxifyLabel: bboxifyLabel,
   toSegments: toSegments,
@@ -8,15 +13,23 @@ module.exports = {
   cumulative: cumulative,
   createPolylineToLine: createPolylineToLine,
   createLineToPolyline: createLineToPolyline,
-  createPolylineToXY: createPolylineToXY
+  createPolylineToXY: createPolylineToXY,
+  getBoxInterval: getBoxInterval,
+  boxWidth: width,
+  boxHeight: height,
+}
+
+
+Math.sign = Math.sign || function(x) {
+  x = +x; // convert to a number
+  if (x === 0 || isNaN(x)) {
+    return x;
+  }
+  return x > 0 ? 1 : -1;
 }
 
 
 var pi4 = 0.25 * Math.PI;
-
-// Fix the bounding box dimensions for now
-var width = 30;
-var height = 30;
 
 
 // Create segments for the polyline

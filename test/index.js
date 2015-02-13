@@ -127,3 +127,19 @@ test('polyline2xy', function(t) {
   t.deepEqual(xy, expected);
   t.end();
 });
+
+
+test('getBoxInterval', function(t) {
+  
+  var angle1 = 0;
+  var interval1 = bboxify.getBoxInterval(angle1)
+  var expected1 = bboxify.boxWidth;
+  t.equal(interval1, expected1);
+  
+  var angle2 = Math.PI * 0.25;
+  var interval2 = bboxify.getBoxInterval(angle2);
+  var expected2 = Math.sqrt(0.25 * bboxify.boxWidth * bboxify.boxWidth + 0.25 * bboxify.boxHeight * bboxify.boxHeight);
+  t.equal(interval2, expected2);
+  
+  t.end();
+});
