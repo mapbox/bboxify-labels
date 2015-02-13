@@ -14,7 +14,7 @@ test('toSegments', function (t) {
   
   var segments = bboxify.toSegments(points);
   
-  t.deepEqual(segments, expected);
+  t.deepEqual(expected, segments);
   t.end();
 });
 
@@ -27,7 +27,7 @@ test('getDistance', function(t) {
   var expected = Math.sqrt(2);
   
   var d = bboxify.getDistance(p0, p1);
-  t.equal(expected, d);
+  t.equal(d, expected);
   t.end();
 });
 
@@ -40,7 +40,7 @@ test('linear', function(t) {
   var expected = 1;
   
   var y = bboxify.linear(p0, p1, 1);
-  t.equal(expected, y);
+  t.equal(y, expected);
   t.end();
 });
 
@@ -51,7 +51,7 @@ test('cumulative', function(t) {
   var expected = [1, 3, 6, 10];
   var cumulativeSum = arr.reduce(bboxify.cumulative, []);
   
-  t.deepEqual(expected, cumulativeSum);
+  t.deepEqual(cumulativeSum, expected);
   t.end();
 });
 
@@ -65,21 +65,21 @@ test('polyline2line', function(t) {
   var polylinePoint0 = [0, -30];
   var expectedLinePoint0 = -30;
   var linePoint0 = polyline2line.apply(undefined, polylinePoint0);
-  t.equal(expectedLinePoint0, linePoint0);
+  t.equal(linePoint0, expectedLinePoint0);
   
   
   // point is 30 units w.r.t the second segment
   var polylinePoint1 = [1, 30]; 
   var expectedLinePoint1 = 130;
   var linePoint1 = polyline2line.apply(undefined, polylinePoint1);
-  t.equal(expectedLinePoint1, linePoint1);
+  t.equal(linePoint1, expectedLinePoint1);
   
   
   // point is 30 units beyond the last segment
   var polylinePoint2 = [2, 180];
   var expectedLinePoint2 = 330;
   var linePoint2 = polyline2line.apply(undefined, polylinePoint2);
-  t.equal(expectedLinePoint2, linePoint2);
+  t.equal(linePoint2, expectedLinePoint2);
   
   t.end();
 });
@@ -94,19 +94,37 @@ test('line2polyline', function(t) {
   var linePoint0 = -30;
   var expectedPolylinePoint0 = [0, -30];
   var polylinePoint0 = line2polyline(linePoint0);
-  t.deepEqual(expectedPolylinePoint0, polylinePoint0);
+  t.deepEqual(polylinePoint0, expectedPolylinePoint0);
   
   // point is 30 units w.r.t to the 2nd segment
   var linePoint1 = 130;
   var expectedPolylinePoint1 = [1, 30];
   var polylinePoint1 = line2polyline(linePoint1)
-  t.deepEqual(expectedPolylinePoint1, polylinePoint1);
+  t.deepEqual(polylinePoint1, expectedPolylinePoint1);
   
   // point is 30 units beyonds the last segment
   var linePoint2 = 330;
   var expectedPolylinePoint2 = [2, 180];
   var polylinePoint2 = line2polyline(linePoint2);
-  t.deepEqual(expectedPolylinePoint2, polylinePoint2);
+  t.deepEqual(polylinePoint2, expectedPolylinePoint2);
   
+  t.end();
+});
+
+
+test('polyline2xy', function(t) {
+  
+  var points = [[10, 10], [30, 20], [60, 50]];
+  var segments = bboxify.toSegments(points);
+  
+  var polyline2xy = bboxify.createPolylineToXY(segments);
+  var segmentIndex = 1;
+  var segmentDistance = 20;
+  var expected = [47.14985851425088, 30.289915108550527];
+  
+  var xy = polyline2xy(segmentIndex, segmentDistance);
+  console.log(xy);
+  
+  t.deepEqual(xy, expected);
   t.end();
 });
