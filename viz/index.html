@@ -68,19 +68,17 @@
     
     function scaleToCanvas(width, height, points) {
       
-      var x = points.map(function(p) {
+      var extentX = d3.extent(points, function(p) {
         return p[0];
       });
+      var minX = extentX[0];
+      var maxX = extentX[1];
       
-      var y = points.map(function(p) {
+      var extentY = d3.extent(points, function(p) {
         return p[1];
       });
-      
-      var minX = Math.min.apply(Math, x);
-      var maxX = Math.max.apply(Math, x);
-      
-      var minY = Math.min.apply(Math, y);
-      var maxY = Math.max.apply(Math, y);
+      var minY = extentY[0];
+      var maxY = extentY[1];
       
       var scaledPoints = points.map(function(p) {
         var x = width * (p[0] - minX) / (maxX - minX);
