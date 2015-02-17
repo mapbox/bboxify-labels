@@ -221,7 +221,7 @@ function bboxifyLabel(polyline, anchor, labelLength) {
     }
     
     var bboxes = [];
-    for (var j = 0; j < nBoxes + 1; j++) {
+    for (var j = 0; j < nBoxes; j++) {
       
       var distanceToSegmentOrigin = getDistance(p0, [x0, y0]);
       var lineCoordinate = polyline2line(segmentIndex, distanceToSegmentOrigin);
