@@ -190,6 +190,7 @@ function bboxifyLabel(polyline, anchor, labelLength) {
   
   var bboxes = labeledSegments.map(function(segment, i) {
     var segmentIndex = startSegment + i;
+    var last = ~~((i + 1) / labeledSegments.length);
     
     var p0 = segment[0];
     var p1 = segment[1];
@@ -221,7 +222,7 @@ function bboxifyLabel(polyline, anchor, labelLength) {
     }
     
     var bboxes = [];
-    for (var j = 0; j < nBoxes; j++) {
+    for (var j = 0; j < nBoxes + last; j++) {
       
       var distanceToSegmentOrigin = getDistance(p0, [x0, y0]);
       var lineCoordinate = polyline2line(segmentIndex, distanceToSegmentOrigin);
