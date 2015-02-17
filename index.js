@@ -129,8 +129,12 @@ function createPolylineToXY(segments) {
 
 function getBoxInterval(angle) {
   
-  // Make distance smaller for tighter packing
-  var minDistance = Math.sqrt(0.25 * width * width + 0.25 * height * height);
+  // Make min distance smaller for tighter packing of boxes
+  
+  // min distance is a function of the box diagonal
+  var hypot = Math.sqrt(width * width + height * height);
+  
+  var minDistance = 0.5 * hypot;
   var maxDistance = width;
   
   var m = (minDistance - maxDistance) / pi4;
