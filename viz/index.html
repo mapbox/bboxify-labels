@@ -5,6 +5,10 @@
     <link href='https://www.mapbox.com/base/latest/base.css' rel='stylesheet' />
     <style>
     
+    .svg {
+      width: 100%;
+    }
+    
     rect {
       fill:none;
       stroke:#91bfdb;
@@ -62,36 +66,77 @@
       };
     }
     
+    function scaleToCanvas(width, height, points) {
+      
+      var x = points.map(function(p) {
+        return p[0];
+      });
+      
+      var y = points.map(function(p) {
+        return p[1];
+      });
+      
+      var minX = Math.min.apply(Math, x);
+      var maxX = Math.max.apply(Math, x);
+      
+      var minY = Math.min.apply(Math, y);
+      var maxY = Math.max.apply(Math, y);
+      
+      var scaledPoints = points.map(function(p) {
+        var x = width * (p[0] - minX) / (maxX - minX);
+        var y = height * (p[1] - minY) / (maxY - minY);
+        
+        return [x, y];
+      });
+      
+      return scaledPoints;
+    }
+    
     
     function onDOM() {
       window.removeEventListener('DOMContentLoaded');
       
-      var svg = d3.select('.svg').append('svg');
-      var node = svg.node();
-      var box = node.getBoundingClientRect();
+      var el = d3.select('.svg')
+      var svg = el.append('svg');
+      var node = el.node();
       
-      var width = box.width;
+      var width = node.clientWidth;
       var height = width * 2 / 3;
       
       svg
       .attr('width', width)
       .attr('height', height);
       
-      var nPoints = 4;
-      var points = [], x0 = 0, y0 = 0;
-      for (var i = 0; i < nPoints; i++) {
-
-        // Generate random rightward points
-        var x0 = getRandomInRange(x0, width);
-        var y = getRandomInRange(0, height);
-
-        points.push([x0, y]);
-      }
+      // var nPoints = 4;
+      // var points = [], x0 = 0, y0 = 0;
+      // for (var i = 0; i < nPoints; i++) {
+      //
+      //   // Generate random rightward points
+      //   var x0 = getRandomInRange(x0, width);
+      //   var y = getRandomInRange(0, height);
+      //
+      //   points.push([x0, y]);
+      // }
+      
+      
+      // var points = [
+      //   [152.50, 65.96],
+      //   [225.71, 67.61],
+      //   [263.26, 61.88],
+      //   [277.61, 185.43]
+      // ];
+      
+      // var anchor = {
+      //   index: 0,
+      //   point: [187.0540321186522, 66.73708146620368]
+      // };
       
       // var points = [[10, 10], [100, 100], [200, 200]];
       // var points = [[50, 100], [200, 100], [250, 100]];
+      var points = [[627,5120],[627,5115],[634,5036],[636,5011],[637,4998],[640,4970],[642,4947],[647,4894],[651,4842],[655,4790],[656,4751],[656,4730],[656,4684],[655,4660],[653,4632],[651,4607],[644,4559],[639,4529],[628,4477],[616,4425],[589,4323],[575,4272],[549,4170],[536,4120],[522,4068],[508,4018],[447,3799],[414,3686],[345,3455],[333,3369],[325,3277],[328,3178],[336,3086],[355,2987],[363,2958],[374,2922],[402,2825],[422,2759],[468,2607],[494,2521],[518,2419],[538,2286],[563,2108],[584,1966],[599,1922],[625,1864],[657,1795],[740,1637],[779,1571],[858,1439],[935,1280],[998,1131],[1035,1033],[1068,949],[1129,776],[1152,712],[1197,587],[1243,454],[1252,431],[1280,353],[1350,170],[1360,149],[1375,117],[1391,87],[1409,57],[1418,41],[1424,32],[1449,-8],[1475,-46],[1516,-103],[1548,-143],[1572,-171],[1609,-211],[1635,-237],[1649,-249],[1663,-261],[1683,-278],[1697,-289],[1726,-310],[1772,-340],[1802,-358],[1818,-367],[1836,-377],[1870,-394],[1893,-404],[1917,-413],[1940,-420],[1965,-426],[1989,-431],[2002,-433],[2020,-435],[2052,-437],[2100,-437],[2147,-435],[2329,-418],[2396,-413],[2451,-411],[2465,-411],[2496,-413],[2517,-416],[2548,-423],[2598,-438],[2622,-447],[2645,-458],[2657,-464],[2668,-470],[2685,-481],[2696,-488],[2729,-512],[2739,-520],[2759,-539],[2772,-552],[2791,-575],[2804,-592],[2825,-622],[2847,-660],[2856,-682],[2874,-755],[2877,-773],[2879,-796],[2880,-822],[2881,-834],[2880,-858],[2878,-882],[2877,-894],[2873,-917],[2871,-926],[2865,-952],[2856,-980],[2851,-993],[2840,-1017],[2837,-1024]];
       
-      var anchor = getRandomAnchor(points);
+      // var anchor = getRandomAnchor(points);
+      // console.log(anchor);
       // var anchor = {
       //   index: 0,
       //   point: [117.16546011157334, 100]
@@ -103,7 +148,27 @@
       // }
       
       // var labelLength = getRandomInRange(150, 200);
-      var labelLength = 200;
+      // var labelLength = 1534;
+      
+      var offset = 28;
+      points = points.slice(offset, 50);
+      var scaledPoints = scaleToCanvas(width, height, points);
+      var anchor = {
+        index: 41 - offset,
+        point: scaledPoints[41 - offset]
+      }
+      
+      
+      var xmin = d3.min(points, function(p) {
+        return p[0];
+      });
+      var xmax = d3.max(points, function(p) {
+        return p[1];
+      });
+      
+      var labelLength = 1534;
+      labelLength = Math.sqrt(width * width + height * height) * (labelLength - xmin) / (xmax - xmin);
+      
       svg.append('circle')
       .attr('r', 4)
       .attr('cx', anchor.point[0])
@@ -121,7 +186,7 @@
         });
       
       svg.selectAll('circles')
-        .data(points)
+        .data(scaledPoints)
         .enter().append("circle")
         .style("stroke", "gray")
         .style("fill", "black")
@@ -135,17 +200,13 @@
         .interpolate('linear');
       
       var polyLine = svg.append('path')
-          .attr('d', lineFunction(points))
+          .attr('d', lineFunction(scaledPoints))
       
-      var bboxes = bboxifyLabel(points, anchor, labelLength).reduce(function(a, b) {
-        return a.concat(b);
-      });
-      
-      console.log("BBOXIFIED", bboxes);
+      var bboxes = bboxifyLabel(scaledPoints, anchor, labelLength);
       
       for (var i = 0; i < bboxes.length; i++) {
         var bbox = bboxes[i];
-        createRectangle(svg, bbox.x, bbox.y, bbox.width, bbox.height);
+        createRectangle(svg, bbox.x - 0.5 * bbox.width, bbox.y - 0.5 * bbox.height, bbox.width, bbox.height);
       }
       
     }
