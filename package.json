@@ -1,6 +1,7 @@
 {
   "name": "bboxify-labels",
   "description": "Represent labels on a polyline with bounding boxes.",
+  "version": "0.0.1",
   "main": "index.js",
   "scripts": {
     "test": "retire -p && jshint && tape test/*.js"
