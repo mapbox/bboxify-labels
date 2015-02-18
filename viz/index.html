@@ -148,14 +148,19 @@
       // var labelLength = getRandomInRange(150, 200);
       // var labelLength = 1534;
       
-      var offset = 28;
-      points = points.slice(offset, 50);
+      // var offset = 28;
+      // points = points.slice(offset, 50);
       var scaledPoints = scaleToCanvas(width, height, points);
       var anchor = {
-        index: 41 - offset,
-        point: scaledPoints[41 - offset]
+        index: 80,
+        point: scaledPoints[80]
       }
       
+      console.log(anchor, anchor);
+      // var anchor = {
+      //   index: 41 - offset,
+      //   point: scaledPoints[41 - offset]
+      // }
       
       var xmin = d3.min(points, function(p) {
         return p[0];
@@ -166,6 +171,7 @@
       
       var labelLength = 1534;
       labelLength = Math.sqrt(width * width + height * height) * (labelLength - xmin) / (xmax - xmin);
+      console.log('labelLength', labelLength);
       
       svg.append('circle')
       .attr('r', 4)
@@ -200,7 +206,7 @@
       var polyLine = svg.append('path')
           .attr('d', lineFunction(scaledPoints))
       
-      var bboxes = bboxifyLabel(scaledPoints, anchor, labelLength);
+      var bboxes = bboxifyLabel(scaledPoints, anchor, labelLength, 30);
       
       for (var i = 0; i < bboxes.length; i++) {
         var bbox = bboxes[i];

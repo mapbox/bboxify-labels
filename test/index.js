@@ -130,15 +130,16 @@ test('polyline2xy', function(t) {
 
 
 test('getBoxInterval', function(t) {
+  var size = 30;
   
   var angle1 = 0;
-  var interval1 = bboxify.getBoxInterval(angle1)
-  var expected1 = bboxify.boxWidth;
+  var interval1 = bboxify.getBoxInterval(angle1, size)
+  var expected1 = size;
   t.equal(interval1, expected1);
   
   var angle2 = Math.PI * 0.25;
-  var interval2 = bboxify.getBoxInterval(angle2);
-  var expected2 = Math.sqrt(0.25 * bboxify.boxWidth * bboxify.boxWidth + 0.25 * bboxify.boxHeight * bboxify.boxHeight);
+  var interval2 = bboxify.getBoxInterval(angle2, size);
+  var expected2 = Math.sqrt(0.25 * size * size + 0.25 * size * size);
   t.equal(interval2, expected2);
   
   t.end();

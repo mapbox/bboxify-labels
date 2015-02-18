@@ -1,11 +1,7 @@
 'use strict';
 
-// Fix the bounding box dimensions for now
-var width = 30;
-var height = 30;
-
 // Define a constant packing interval
-var step = 20;
+var step = 30;
 
 
 module.exports = {
@@ -17,9 +13,7 @@ module.exports = {
   createPolylineToLine: createPolylineToLine,
   createLineToPolyline: createLineToPolyline,
   createPolylineToXY: createPolylineToXY,
-  getBoxInterval: getBoxInterval,
-  boxWidth: width,
-  boxHeight: height,
+  getBoxInterval: getBoxInterval
 }
 
 
@@ -130,26 +124,27 @@ function createPolylineToXY(segments) {
 }
 
 
-function getBoxInterval(angle) {
+function getBoxInterval(angle, size) {
   
   // Make min distance smaller for tighter packing of boxes
   
   // min distance is a function of the box diagonal
-  var hypot = Math.sqrt(width * width + height * height);
+  var hypot = Math.sqrt(size * size + size * size);
   
   var minDistance = 0.5 * hypot;
-  var maxDistance = width;
+  var maxDistance = size;
   
   var m = (minDistance - maxDistance) / pi4;
   return m * angle + maxDistance;
 }
 
 
-function bboxifyLabel(polyline, anchor, labelLength) {
+function bboxifyLabel(polyline, anchor, labelLength, size) {
   
   // polyline: array of coordinates
   // anchor: { index: i, point: [x0, y0] }
   // labelLength: length of labels in pixel units
+  // size: length of the box sides
   
   // Determine the bounding boxes needed to cover the label in the
   // neighborhood of the anchor.
@@ -195,8 +190,8 @@ function bboxifyLabel(polyline, anchor, labelLength) {
     bboxes.push({
       x: xy[0],
       y: xy[1],
-      width: width,
-      height: height,
+      width: size,
+      height: size,
       distanceToAnchor: lineCoordinate - anchorLineCoordinate
     });
   }
@@ -243,7 +238,7 @@ function bboxifyLabel(polyline, anchor, labelLength) {
     var angle2 = 0.5 * Math.PI - angle1;
     var angle = Math.min(angle1, angle2);
     
-    var d = getBoxInterval(angle);
+    var d = getBoxInterval(angle, size);
     var nBoxes = Math.max(~~(segmentLength / d + 0.5), 1);
     
     // Get parameters for the segment
@@ -264,8 +259,8 @@ function bboxifyLabel(polyline, anchor, labelLength) {
       bboxes.push({
         x: x0,
         y: y0,
-        width: width,
-        height: height,
+        width: size,
+        height: size,
         distanceToAnchor: distanceToAnchor
       });
       
