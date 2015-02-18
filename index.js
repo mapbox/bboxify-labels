@@ -4,6 +4,9 @@
 var width = 30;
 var height = 30;
 
+// Define a constant packing interval
+var step = 20;
+
 
 module.exports = {
   bboxifyLabel: bboxifyLabel,
@@ -174,6 +177,32 @@ function bboxifyLabel(polyline, anchor, labelLength) {
   // lie on the line reference frame
   var labelStartLineCoordinate = anchorLineCoordinate - 0.5 * labelLength;
   var labelEndLineCoordinate = anchorLineCoordinate + 0.5 * labelLength;
+  
+  var nBoxes = ~~((labelEndLineCoordinate - labelStartLineCoordinate) / step);
+  
+  // Create boxes with constant packing
+  var bboxes = [];
+  for (var i = 0; i < nBoxes; i++) {
+    
+    var lineCoordinate = labelStartLineCoordinate + i * step;
+    
+    // Convert to polyline reference frame
+    var polylineCoordinate = line2polyline(lineCoordinate);
+    
+    // Convert to canvas reference frame
+    var xy = polyline2xy.apply(undefined, polylineCoordinate);
+    
+    bboxes.push({
+      x: xy[0],
+      y: xy[1],
+      width: width,
+      height: height,
+      distanceToAnchor: lineCoordinate - anchorLineCoordinate
+    });
+  }
+  
+  return bboxes;
+  
   
   // Tranform the label coordinates to the polyline reference frame
   var labelStartPolylineCoordinate = line2polyline(labelStartLineCoordinate);
