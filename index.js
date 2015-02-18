@@ -215,7 +215,7 @@ function bboxifyLabel(polyline, anchor, labelLength) {
     var angle = Math.min(angle1, angle2);
     
     var d = getBoxInterval(angle);
-    var nBoxes = ~~(segmentLength / d + 0.5);
+    var nBoxes = Math.max(~~(segmentLength / d + 0.5), 1);
     
     // Get parameters for the segment
     var m = (y1 - y0) / (x1 - x0);
