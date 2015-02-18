@@ -8,12 +8,10 @@ module.exports = {
   bboxifyLabel: bboxifyLabel,
   toSegments: toSegments,
   getDistance: getDistance,
-  linear: linear,
-  cumulative: cumulative,
+  cumulative: cumulative, 
   createPolylineToLine: createPolylineToLine,
   createLineToPolyline: createLineToPolyline,
-  createPolylineToXY: createPolylineToXY,
-  getBoxInterval: getBoxInterval
+  createPolylineToXY: createPolylineToXY
 }
 
 
@@ -49,14 +47,6 @@ function getDistance(p0, p1) {
   var b = p1[1] - p0[1];
   
   return Math.sqrt(a * a + b * b);
-}
-
-
-function linear(p0, p1, x) {
-  var x0 = p0[0], y0 = p0[1];
-  var x1 = p1[0], y1 = p1[1];
-  
-  return (y1 - y0) / (x1 - x0) * (x - x0) + y0;
 }
 
 
@@ -124,21 +114,6 @@ function createPolylineToXY(segments) {
 }
 
 
-function getBoxInterval(angle, size) {
-  
-  // Make min distance smaller for tighter packing of boxes
-  
-  // min distance is a function of the box diagonal
-  var hypot = Math.sqrt(size * size + size * size);
-  
-  var minDistance = 0.5 * hypot;
-  var maxDistance = size;
-  
-  var m = (minDistance - maxDistance) / pi4;
-  return m * angle + maxDistance;
-}
-
-
 function bboxifyLabel(polyline, anchor, labelLength, size) {
   
   // polyline: array of coordinates
@@ -197,82 +172,4 @@ function bboxifyLabel(polyline, anchor, labelLength, size) {
   }
   
   return bboxes;
-  
-  
-  // Tranform the label coordinates to the polyline reference frame
-  var labelStartPolylineCoordinate = line2polyline(labelStartLineCoordinate);
-  var labelEndPolylineCoordinate = line2polyline(labelEndLineCoordinate);
-  
-  var p0 = polyline2xy(labelStartPolylineCoordinate[0], labelStartPolylineCoordinate[1]);
-  var p1 = polyline2xy(labelEndPolylineCoordinate[0], labelEndPolylineCoordinate[1]);
-  
-  // Get all segments that have the label
-  var startSegment = labelStartPolylineCoordinate[0];
-  var endSegment = labelEndPolylineCoordinate[0];
-  
-  var labeledSegments = segments.slice(startSegment, endSegment + 1);
-  
-  // Change the start point of the outer segments to match the extent of the label
-  labeledSegments[0][0] = p0;
-  labeledSegments[labeledSegments.length - 1][1] = p1;
-  
-  var bboxes = labeledSegments.map(function(segment, i) {
-    var segmentIndex = startSegment + i;
-    var last = ~~((i + 1) / labeledSegments.length);
-    
-    var p0 = segment[0];
-    var p1 = segment[1];
-    
-    var x0 = p0[0], y0 = p0[1];
-    var x1 = p1[0], y1 = p1[1];
-    
-    var segmentLength = getDistance(p0, p1);
-    var direction = Math.sign(x1 - x0);
-    
-    var adjacent = getDistance(p0, [x0, y1]);
-    var opposite = getDistance(p0, [x1, y0]);
-    
-    // TODO: Find smallest angle of incident with axis without
-    //       comparison?
-    var angle1 = Math.acos(adjacent / segmentLength);
-    var angle2 = 0.5 * Math.PI - angle1;
-    var angle = Math.min(angle1, angle2);
-    
-    var d = getBoxInterval(angle, size);
-    var nBoxes = Math.max(~~(segmentLength / d + 0.5), 1);
-    
-    // Get parameters for the segment
-    var m = (y1 - y0) / (x1 - x0);
-    var b = y0 - m * x0;
-    
-    var lineFunction = function(x) {
-      return m * x + b;
-    }
-    
-    var bboxes = [];
-    for (var j = 0; j < nBoxes + last; j++) {
-      
-      var distanceToSegmentOrigin = getDistance(p0, [x0, y0]);
-      var lineCoordinate = polyline2line(segmentIndex, distanceToSegmentOrigin);
-      var distanceToAnchor = lineCoordinate - anchorLineCoordinate;
-      
-      bboxes.push({
-        x: x0,
-        y: y0,
-        width: size,
-        height: size,
-        distanceToAnchor: distanceToAnchor
-      });
-      
-      // Step along the line
-      x0 = x0 + direction * d / Math.sqrt(1 + m * m);
-      y0 = lineFunction(x0);
-    }
-    
-    return bboxes;
-  });
-  
-  return bboxes.reduce(function(a, b) {
-    return a.concat(b);
-  });
 }

@@ -32,19 +32,6 @@ test('getDistance', function(t) {
 });
 
 
-test('linear', function(t) {
-  
-  var p0 = [2, 2];
-  var p1 = [3, 3];
-  
-  var expected = 1;
-  
-  var y = bboxify.linear(p0, p1, 1);
-  t.equal(y, expected);
-  t.end();
-});
-
-
 test('cumulative', function(t) {
   
   var arr = [1, 2, 3, 4];
@@ -128,19 +115,3 @@ test('polyline2xy', function(t) {
   t.end();
 });
 
-
-test('getBoxInterval', function(t) {
-  var size = 30;
-  
-  var angle1 = 0;
-  var interval1 = bboxify.getBoxInterval(angle1, size)
-  var expected1 = size;
-  t.equal(interval1, expected1);
-  
-  var angle2 = Math.PI * 0.25;
-  var interval2 = bboxify.getBoxInterval(angle2, size);
-  var expected2 = Math.sqrt(0.25 * size * size + 0.25 * size * size);
-  t.equal(interval2, expected2);
-  
-  t.end();
-});
