@@ -4,11 +4,10 @@
   "version": "0.0.1",
   "main": "index.js",
   "scripts": {
-    "test": "retire -p && jshint && tape test/*.js"
+    "test": "jshint && tape test/*.js"
   },
   "devDependencies": {
     "jshint": "^2.5.10",
-    "retire": "*",
     "tape": "^3.0.3"
   },
   "jshintConfig": {
