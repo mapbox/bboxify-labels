@@ -1,29 +1,12 @@
 'use strict';
 
-// Define a constant packing interval
-var step = 30;
-
-
 module.exports = {
   bboxifyLabel: bboxifyLabel,
-  toSegments: toSegments,
   getDistance: getDistance
 };
 
-
-// Create segments for the polyline
-function toSegments(polyline) {
-  var segments = [];
-
-  for (var i = 0; i < polyline.length - 1; i++) {
-    var p0 = polyline[i];
-    var p1 = polyline[i + 1];
-    segments.push([p0, p1]);
-  }
-
-  return segments;
-}
-
+// Define a constant packing interval
+var step = 30;
 
 // Euclidean distance
 function getDistance(p0, p1) {
@@ -33,13 +16,11 @@ function getDistance(p0, p1) {
   return Math.sqrt(a * a + b * b);
 }
 
-
 function polyline2line(cumulativeDistances, segmentIndex, segmentDistance) {
   return cumulativeDistances[segmentIndex] + segmentDistance;
 }
 
 function line2polyline(cumulativeDistances, lineDistance) {
-
   // Determine when the line distance exceeds the cumulative distance
   var segmentIndex = 1;
   while (cumulativeDistances[segmentIndex] < lineDistance) segmentIndex++;
@@ -51,12 +32,9 @@ function line2polyline(cumulativeDistances, lineDistance) {
   return [segmentIndex, segmentDistance];
 }
 
-
-function polyline2xy(segments, segmentIndex, segmentDistance) {
-  var segment = segments[segmentIndex];
-
-  var p0 = segment[0];
-  var p1 = segment[1];
+function polyline2xy(points, segmentIndex, segmentDistance) {
+  var p0 = points[segmentIndex];
+  var p1 = points[segmentIndex + 1];
 
   var x0 = p0[0], y0 = p0[1];
   var x1 = p1[0], y1 = p1[1];
@@ -89,15 +67,10 @@ function bboxifyLabel(polyline, anchor, labelLength, size) {
   // Determine the bounding boxes needed to cover the label in the
   // neighborhood of the anchor.
 
-
-  // Start with a straight-line representation of the polyline
-  var segments = toSegments(polyline);
-
   // Keep track of segment lengths
   var cumulativeDistances = getCumulativeDistances(polyline);
 
-  var anchorSegment = segments[anchor.index];
-  var anchorSegmentDistance = getDistance(anchorSegment[0], anchor.point);
+  var anchorSegmentDistance = getDistance(polyline[anchor.index], anchor.point);
 
   var anchorLineCoordinate = polyline2line(cumulativeDistances, anchor.index, anchorSegmentDistance);
 
@@ -118,7 +91,7 @@ function bboxifyLabel(polyline, anchor, labelLength, size) {
     var polylineCoordinate = line2polyline(cumulativeDistances, lineCoordinate);
 
     // Convert to canvas reference frame
-    var xy = polyline2xy(segments, polylineCoordinate[0], polylineCoordinate[1]);
+    var xy = polyline2xy(polyline, polylineCoordinate[0], polylineCoordinate[1]);
 
     bboxes.push({
       x: xy[0],
