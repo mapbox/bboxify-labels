@@ -25,7 +25,7 @@ function line2polyline(cumulativeDistances, lineDistance) {
   var segmentIndex = 1;
   while (cumulativeDistances[segmentIndex] < lineDistance) segmentIndex++;
 
-  segmentIndex = Math.min(segmentIndex, cumulativeDistances.length - 2);
+  segmentIndex = Math.min(segmentIndex - 1, cumulativeDistances.length - 2);
 
   var segmentDistance = lineDistance - cumulativeDistances[segmentIndex];
 
