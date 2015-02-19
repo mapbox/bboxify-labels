@@ -16,10 +16,6 @@ function getDistance(p0, p1) {
   return Math.sqrt(a * a + b * b);
 }
 
-function polyline2line(cumulativeDistances, segmentIndex, segmentDistance) {
-  return cumulativeDistances[segmentIndex] + segmentDistance;
-}
-
 function line2polyline(cumulativeDistances, lineDistance) {
   // Determine when the line distance exceeds the cumulative distance
   var segmentIndex = 1;
@@ -72,7 +68,7 @@ function bboxifyLabel(polyline, anchor, labelLength, size) {
 
   var anchorSegmentDistance = getDistance(polyline[anchor.index], anchor.point);
 
-  var anchorLineCoordinate = polyline2line(cumulativeDistances, anchor.index, anchorSegmentDistance);
+  var anchorLineCoordinate = cumulativeDistances[anchor.index] + anchorSegmentDistance;
 
   // Determine where the 1st and last bounding boxes
   // lie on the line reference frame
