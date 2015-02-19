@@ -8,9 +8,6 @@ module.exports = {
   bboxifyLabel: bboxifyLabel,
   toSegments: toSegments,
   getDistance: getDistance,
-  cumulative: cumulative, 
-  createPolylineToLine: createPolylineToLine,
-  createLineToPolyline: createLineToPolyline,
   createPolylineToXY: createPolylineToXY
 };
 
@@ -43,39 +40,21 @@ function add(a, b) {
 }
 
 
-function cumulative(a, b) {
-  if (a.length > 0) {
-    b += a[a.length - 1];
-  }
-  a.push(b);
-  return a;
+function polyline2line(cumulativeDistances, segmentIndex, segmentDistance) {
+  return cumulativeDistances[segmentIndex] + segmentDistance;
 }
 
+function line2polyline(cumulativeDistances, lineDistance) {
 
-function createPolylineToLine(cumulativeDistances) {
-  
-  return function polyline2line(segmentIndex, segmentDistance) {
-    return cumulativeDistances[segmentIndex] + segmentDistance;
-  }
-  
-}
+  // Determine when the line distance exceeds the cumulative distance
+  var segmentIndex = cumulativeDistances.slice(1).map(function(d) {
+    return d < lineDistance;
+  }).reduce(add);
+  segmentIndex = Math.min(segmentIndex, cumulativeDistances.length - 2);
 
+  var segmentDistance = lineDistance - cumulativeDistances[segmentIndex];
 
-function createLineToPolyline(cumulativeDistances) {
-  
-  return function line2polyline(lineDistance) {
-    
-    // Determine when the line distance exceeds the cumulative distance
-    var segmentIndex = cumulativeDistances.slice(1).map(function(d) {
-      return d < lineDistance;
-    }).reduce(add);
-    segmentIndex = Math.min(segmentIndex, cumulativeDistances.length - 2);
-    
-    var segmentDistance = lineDistance - cumulativeDistances[segmentIndex];
-    
-    return [segmentIndex, segmentDistance];
-  }
-  
+  return [segmentIndex, segmentDistance];
 }
 
 
@@ -101,6 +80,14 @@ function createPolylineToXY(segments) {
 
 }
 
+function getCumulativeDistances(points) {
+  var distances = [0];
+  for (var i = 1, dist = 0; i < points.length; i++) {
+    dist += getDistance(points[i], points[i - 1]);
+    distances.push(dist);
+  }
+  return distances;
+}
 
 function bboxifyLabel(polyline, anchor, labelLength, size) {
 
@@ -115,29 +102,24 @@ function bboxifyLabel(polyline, anchor, labelLength, size) {
 
   // Start with a straight-line representation of the polyline
   var segments = toSegments(polyline);
-  
+
   // Keep track of segment lengths
-  var distances = segments.map(function(segment) {
-    return getDistance(segment[0], segment[1]);
-  });
-  var cumulativeDistances = [0].concat(distances.reduce(cumulative, []));
-  
-  var polyline2line = createPolylineToLine(cumulativeDistances);
-  var line2polyline = createLineToPolyline(cumulativeDistances);
+  var cumulativeDistances = getCumulativeDistances(polyline);
+
   var polyline2xy = createPolylineToXY(segments);
-  
+
   var anchorSegment = segments[anchor.index];
   var anchorSegmentDistance = getDistance(anchorSegment[0], anchor.point);
-  
-  var anchorLineCoordinate = polyline2line(anchor.index, anchorSegmentDistance);
-  
+
+  var anchorLineCoordinate = polyline2line(cumulativeDistances, anchor.index, anchorSegmentDistance);
+
   // Determine where the 1st and last bounding boxes
   // lie on the line reference frame
   var labelStartLineCoordinate = anchorLineCoordinate - 0.5 * labelLength;
   var labelEndLineCoordinate = anchorLineCoordinate + 0.5 * labelLength;
-  
-  var nBoxes = ~~((labelEndLineCoordinate - labelStartLineCoordinate) / step);
-  
+
+  var nBoxes = Math.floor((labelEndLineCoordinate - labelStartLineCoordinate) / step);
+
   // Create boxes with constant packing
   var bboxes = [];
   for (var i = 0; i < nBoxes; i++) {
@@ -145,8 +127,8 @@ function bboxifyLabel(polyline, anchor, labelLength, size) {
     var lineCoordinate = labelStartLineCoordinate + i * step;
 
     // Convert to polyline reference frame
-    var polylineCoordinate = line2polyline(lineCoordinate);
-    
+    var polylineCoordinate = line2polyline(cumulativeDistances, lineCoordinate);
+
     // Convert to canvas reference frame
     var xy = polyline2xy.apply(undefined, polylineCoordinate);
 
