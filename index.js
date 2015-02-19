@@ -24,19 +24,16 @@ Math.sign = Math.sign || function(x) {
 }
 
 
-var pi4 = 0.25 * Math.PI;
-
-
 // Create segments for the polyline
 function toSegments(polyline) {
   var segments = [];
-  
+
   for (var i = 0; i < polyline.length - 1; i++) {
     var p0 = polyline[i];
-    var p1 = polyline[i+1];
+    var p1 = polyline[i + 1];
     segments.push([p0, p1]);
   }
-  
+
   return segments;
 }
 
@@ -45,7 +42,7 @@ function toSegments(polyline) {
 function getDistance(p0, p1) {
   var a = p1[0] - p0[0];
   var b = p1[1] - p0[1];
-  
+
   return Math.sqrt(a * a + b * b);
 }
 
@@ -92,13 +89,13 @@ function createLineToPolyline(cumulativeDistances) {
 
 
 function createPolylineToXY(segments) {
-  
+
   return function polyline2xy(segmentIndex, segmentDistance) {
     var segment = segments[segmentIndex];
-    
+
     var p0 = segment[0];
     var p1 = segment[1];
-    
+
     var x0 = p0[0], y0 = p0[1];
     var x1 = p1[0], y1 = p1[1];
     
@@ -107,24 +104,24 @@ function createPolylineToXY(segments) {
     var m = (y1 - y0) / (x1 - x0);
     var x = x0 + direction * Math.sqrt(segmentDistance * segmentDistance / (1 + m * m));
     var y = m * (x - x0) + y0;
-    
+
     return [x, y];
-  }
-  
+  };
+
 }
 
 
 function bboxifyLabel(polyline, anchor, labelLength, size) {
-  
+
   // polyline: array of coordinates
   // anchor: { index: i, point: [x0, y0] }
   // labelLength: length of labels in pixel units
   // size: length of the box sides
-  
+
   // Determine the bounding boxes needed to cover the label in the
   // neighborhood of the anchor.
-  
-  
+
+
   // Start with a straight-line representation of the polyline
   var segments = toSegments(polyline);
   
@@ -153,15 +150,15 @@ function bboxifyLabel(polyline, anchor, labelLength, size) {
   // Create boxes with constant packing
   var bboxes = [];
   for (var i = 0; i < nBoxes; i++) {
-    
+
     var lineCoordinate = labelStartLineCoordinate + i * step;
-    
+
     // Convert to polyline reference frame
     var polylineCoordinate = line2polyline(lineCoordinate);
     
     // Convert to canvas reference frame
     var xy = polyline2xy.apply(undefined, polylineCoordinate);
-    
+
     bboxes.push({
       x: xy[0],
       y: xy[1],
@@ -170,6 +167,6 @@ function bboxifyLabel(polyline, anchor, labelLength, size) {
       distanceToAnchor: lineCoordinate - anchorLineCoordinate
     });
   }
-  
+
   return bboxes;
 }
