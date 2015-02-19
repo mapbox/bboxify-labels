@@ -12,16 +12,7 @@ module.exports = {
   createPolylineToLine: createPolylineToLine,
   createLineToPolyline: createLineToPolyline,
   createPolylineToXY: createPolylineToXY
-}
-
-
-Math.sign = Math.sign || function(x) {
-  x = +x; // convert to a number
-  if (x === 0 || isNaN(x)) {
-    return x;
-  }
-  return x > 0 ? 1 : -1;
-}
+};
 
 
 // Create segments for the polyline
@@ -98,9 +89,9 @@ function createPolylineToXY(segments) {
 
     var x0 = p0[0], y0 = p0[1];
     var x1 = p1[0], y1 = p1[1];
-    
-    var direction = Math.sign(x1 - x0);
-    
+
+    var direction = x1 > x0 ? 1 : -1;
+
     var m = (y1 - y0) / (x1 - x0);
     var x = x0 + direction * Math.sqrt(segmentDistance * segmentDistance / (1 + m * m));
     var y = m * (x - x0) + y0;
