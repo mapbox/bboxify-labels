@@ -7,8 +7,7 @@ var step = 30;
 module.exports = {
   bboxifyLabel: bboxifyLabel,
   toSegments: toSegments,
-  getDistance: getDistance,
-  createPolylineToXY: createPolylineToXY
+  getDistance: getDistance
 };
 
 
@@ -58,26 +57,22 @@ function line2polyline(cumulativeDistances, lineDistance) {
 }
 
 
-function createPolylineToXY(segments) {
+function polyline2xy(segments, segmentIndex, segmentDistance) {
+  var segment = segments[segmentIndex];
 
-  return function polyline2xy(segmentIndex, segmentDistance) {
-    var segment = segments[segmentIndex];
+  var p0 = segment[0];
+  var p1 = segment[1];
 
-    var p0 = segment[0];
-    var p1 = segment[1];
+  var x0 = p0[0], y0 = p0[1];
+  var x1 = p1[0], y1 = p1[1];
 
-    var x0 = p0[0], y0 = p0[1];
-    var x1 = p1[0], y1 = p1[1];
+  var direction = x1 > x0 ? 1 : -1;
 
-    var direction = x1 > x0 ? 1 : -1;
+  var m = (y1 - y0) / (x1 - x0);
+  var x = x0 + direction * Math.sqrt(segmentDistance * segmentDistance / (1 + m * m));
+  var y = m * (x - x0) + y0;
 
-    var m = (y1 - y0) / (x1 - x0);
-    var x = x0 + direction * Math.sqrt(segmentDistance * segmentDistance / (1 + m * m));
-    var y = m * (x - x0) + y0;
-
-    return [x, y];
-  };
-
+  return [x, y];
 }
 
 function getCumulativeDistances(points) {
@@ -106,8 +101,6 @@ function bboxifyLabel(polyline, anchor, labelLength, size) {
   // Keep track of segment lengths
   var cumulativeDistances = getCumulativeDistances(polyline);
 
-  var polyline2xy = createPolylineToXY(segments);
-
   var anchorSegment = segments[anchor.index];
   var anchorSegmentDistance = getDistance(anchorSegment[0], anchor.point);
 
@@ -130,7 +123,7 @@ function bboxifyLabel(polyline, anchor, labelLength, size) {
     var polylineCoordinate = line2polyline(cumulativeDistances, lineCoordinate);
 
     // Convert to canvas reference frame
-    var xy = polyline2xy.apply(undefined, polylineCoordinate);
+    var xy = polyline2xy(segments, polylineCoordinate[0], polylineCoordinate[1]);
 
     bboxes.push({
       x: xy[0],
