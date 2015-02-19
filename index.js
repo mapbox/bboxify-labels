@@ -34,11 +34,6 @@ function getDistance(p0, p1) {
 }
 
 
-function add(a, b) {
-  return a + b;
-}
-
-
 function polyline2line(cumulativeDistances, segmentIndex, segmentDistance) {
   return cumulativeDistances[segmentIndex] + segmentDistance;
 }
@@ -46,9 +41,9 @@ function polyline2line(cumulativeDistances, segmentIndex, segmentDistance) {
 function line2polyline(cumulativeDistances, lineDistance) {
 
   // Determine when the line distance exceeds the cumulative distance
-  var segmentIndex = cumulativeDistances.slice(1).map(function(d) {
-    return d < lineDistance;
-  }).reduce(add);
+  var segmentIndex = 1;
+  while (cumulativeDistances[segmentIndex] < lineDistance) segmentIndex++;
+
   segmentIndex = Math.min(segmentIndex, cumulativeDistances.length - 2);
 
   var segmentDistance = lineDistance - cumulativeDistances[segmentIndex];
