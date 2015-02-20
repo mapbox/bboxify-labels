@@ -5,9 +5,6 @@ module.exports = {
   getDistance: getDistance
 };
 
-// Define a constant packing interval
-var step = 30;
-
 // Euclidean distance
 function getDistance(p0, p1) {
   var a = p1[0] - p0[0];
@@ -55,6 +52,7 @@ function getCumulativeDistances(points) {
 
 function bboxifyLabel(polyline, anchor, labelLength, size) {
 
+    var step = size / 2;
   // polyline: array of coordinates
   // anchor: { index: i, point: [x0, y0] }
   // labelLength: length of labels in pixel units
