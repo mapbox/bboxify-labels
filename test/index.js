@@ -82,7 +82,6 @@ test('bboxify should not return nans', function(t) {
   
   for (var i = 0; i < boxes.length; i++) {
     var box = boxes[i];
-    console.log(box);
     t.equal(false, isNaN(box.x));
     t.equal(false, isNaN(box.y));
   }

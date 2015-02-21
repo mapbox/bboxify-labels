@@ -36,11 +36,13 @@ function polyline2xy(points, segmentIndex, segmentDistance) {
   var x1 = p1[0], y1 = p1[1];
 
   var direction = x1 > x0 ? 1 : -1;
-
+  
   var m = (y1 - y0) / (x1 - x0);
   var x = x0 + direction * Math.sqrt(segmentDistance * segmentDistance / (1 + m * m));
-  var y = m * (x - x0) + y0;
-
+  
+  var dy = m * (x - x0);
+  var y = dy + y0 || y0;
+  
   return [x, y];
 }
 
@@ -54,7 +56,6 @@ function getCumulativeDistances(points) {
 }
 
 function bboxifyLabel(polyline, anchor, labelLength, size) {
-
   var step = size / 2;
   
   // polyline: array of coordinates
@@ -90,7 +91,7 @@ function bboxifyLabel(polyline, anchor, labelLength, size) {
 
     // Convert to canvas reference frame
     var xy = polyline2xy(polyline, polylineCoordinate[0], polylineCoordinate[1]);
-
+    
     bboxes.push({
       x: xy[0],
       y: xy[1],
