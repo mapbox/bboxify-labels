@@ -93,12 +93,19 @@ function bboxifyLabel(polyline, anchor, labelLength, size) {
     // Convert to canvas reference frame
     var p = polyline2xy(polyline, polylineCoordinate[0], polylineCoordinate[1]);
     
+    var distanceToAnchor = lineCoordinate - anchorLineCoordinate;
+    
     bboxes.push({
       x: p.x,
       y: p.y,
       width: size,
       height: size,
-      distanceToAnchor: lineCoordinate - anchorLineCoordinate
+      distanceToAnchor: distanceToAnchor,
+      maxScale: (labelLength / 2 + size * 0.3) / Math.abs(distanceToAnchor),
+      x1: -size / 2,
+      x2: size / 2,
+      y1: -size / 2,
+      y2: size / 2
     });
   }
 
