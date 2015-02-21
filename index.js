@@ -2,7 +2,10 @@
 
 module.exports = {
   bboxifyLabel: bboxifyLabel,
-  getDistance: getDistance
+  getDistance: getDistance,
+  getCumulativeDistances: getCumulativeDistances,
+  line2polyline: line2polyline,
+  polyline2xy: polyline2xy,
 };
 
 // Euclidean distance
@@ -52,7 +55,8 @@ function getCumulativeDistances(points) {
 
 function bboxifyLabel(polyline, anchor, labelLength, size) {
 
-    var step = size / 2;
+  var step = size / 2;
+  
   // polyline: array of coordinates
   // anchor: { index: i, point: [x0, y0] }
   // labelLength: length of labels in pixel units

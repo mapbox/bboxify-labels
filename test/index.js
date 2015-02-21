@@ -4,19 +4,6 @@ var test = require('tape');
 var bboxify = require('../');
 
 var bboxifyLabel = require('../').bboxifyLabel;
-var toSegments = require('../').toSegments
-
-
-test('toSegments', function (t) {
-
-  var points = [[1, 1], [2, 2], [3, 3]];
-  var expected = [ [ [1, 1], [2, 2] ], [ [2, 2], [3, 3] ] ];
-
-  var segments = bboxify.toSegments(points);
-
-  t.deepEqual(expected, segments);
-  t.end();
-});
 
 
 test('getDistance', function(t) {
@@ -34,40 +21,7 @@ test('getDistance', function(t) {
 
 test('cumulative', function(t) {
   
-  var arr = [1, 2, 3, 4];
-  var expected = [1, 3, 6, 10];
-  var cumulativeSum = arr.reduce(bboxify.cumulative, []);
-  
-  t.deepEqual(cumulativeSum, expected);
-  t.end();
-});
-
-
-test('polyline2line', function(t) {
-
-  var cumulativeDistances = [0, 100, 150, 300];
-  var polyline2line = bboxify.createPolylineToLine(cumulativeDistances);
-
-  // point is -30 units w.r.t the 1st segment
-  var polylinePoint0 = [0, -30];
-  var expectedLinePoint0 = -30;
-  var linePoint0 = polyline2line.apply(undefined, polylinePoint0);
-  t.equal(linePoint0, expectedLinePoint0);
-
-
-  // point is 30 units w.r.t the second segment
-  var polylinePoint1 = [1, 30];
-  var expectedLinePoint1 = 130;
-  var linePoint1 = polyline2line.apply(undefined, polylinePoint1);
-  t.equal(linePoint1, expectedLinePoint1);
-
-
-  // point is 30 units beyond the last segment
-  var polylinePoint2 = [2, 180];
-  var expectedLinePoint2 = 330;
-  var linePoint2 = polyline2line.apply(undefined, polylinePoint2);
-  t.equal(linePoint2, expectedLinePoint2);
-
+  var points = [[10, 10], [30, 20], [70, 50]];
   t.end();
 });
 
@@ -75,24 +29,23 @@ test('polyline2line', function(t) {
 test('line2polyline', function(t) {
 
   var cumulativeDistances = [0, 100, 150, 300];
-  var line2polyline = bboxify.createLineToPolyline(cumulativeDistances);
 
   // point is -30 units w.r.t the 1st segment
   var linePoint0 = -30;
   var expectedPolylinePoint0 = [0, -30];
-  var polylinePoint0 = line2polyline(linePoint0);
+  var polylinePoint0 = bboxify.line2polyline(cumulativeDistances, linePoint0);
   t.deepEqual(polylinePoint0, expectedPolylinePoint0);
 
   // point is 30 units w.r.t to the 2nd segment
   var linePoint1 = 130;
   var expectedPolylinePoint1 = [1, 30];
-  var polylinePoint1 = line2polyline(linePoint1)
+  var polylinePoint1 = bboxify.line2polyline(cumulativeDistances, linePoint1)
   t.deepEqual(polylinePoint1, expectedPolylinePoint1);
 
   // point is 30 units beyonds the last segment
   var linePoint2 = 330;
   var expectedPolylinePoint2 = [2, 180];
-  var polylinePoint2 = line2polyline(linePoint2);
+  var polylinePoint2 = bboxify.line2polyline(cumulativeDistances, linePoint2);
   t.deepEqual(polylinePoint2, expectedPolylinePoint2);
 
   t.end();
@@ -102,16 +55,39 @@ test('line2polyline', function(t) {
 test('polyline2xy', function(t) {
 
   var points = [[10, 10], [30, 20], [70, 50]];
-  var segments = bboxify.toSegments(points);
-
-  var polyline2xy = bboxify.createPolylineToXY(segments);
+  var cumulativeDistances = bboxify.getCumulativeDistances(points);
+  
   var segmentIndex = 1;
   var segmentDistance = 20;
   var expected = [46, 32];
 
-  var xy = polyline2xy(segmentIndex, segmentDistance);
+  var xy = bboxify.polyline2xy(points, segmentIndex, segmentDistance);
 
   t.deepEqual(xy, expected);
+  t.end();
+});
+
+
+test('bboxify should not return nans', function(t) {
+  
+  var geom = [[3497,3342],[3506,3343],[3518,3345],[3526,3345],[3536,3346],[3551,3347],[3583,3350],[3611,3352],[3623,3352],[3643,3348],[3654,3346],[3666,3343],[3712,3335],[3720,3326],[3785,3314]];
+  var anchor = {
+    index: 13,
+    point: [3765.2091567163498, 3317.653694144674]
+  };
+  var length = 259.1333333333333;
+  var height = 124.79999999999998;
+  
+  var boxes = bboxify.bboxifyLabel(geom, anchor, length, height);
+  
+  
+  for (var i = 0; i < boxes.length; i++) {
+    var box = boxes[i];
+    
+    t.notEqual(NaN, box.x);
+    t.notEqual(NaN, box.y);
+  }
+  
   t.end();
 });
 
