@@ -60,7 +60,7 @@ function bboxifyLabel(polyline, anchor, labelLength, size) {
   var step = size / 2;
   
   // polyline: array of coordinates [ {x: x0, y: y0}, ..., {x: xn, y: yn} ]
-  // anchor: { index: i, point: [x0, y0] }
+  // anchor: { segment: i, x: x0, y: y0 }
   // labelLength: length of labels in pixel units
   // size: length of the box sides
 
@@ -69,11 +69,11 @@ function bboxifyLabel(polyline, anchor, labelLength, size) {
 
   // Keep track of segment lengths
   var cumulativeDistances = getCumulativeDistances(polyline);
-
-  var anchorSegmentDistance = getDistance(polyline[anchor.index], anchor.point);
-
-  var anchorLineCoordinate = cumulativeDistances[anchor.index] + anchorSegmentDistance;
-
+  
+  var anchorSegmentDistance = getDistance(polyline[anchor.segment], anchor);
+  
+  var anchorLineCoordinate = cumulativeDistances[anchor.segment] + anchorSegmentDistance;
+  
   // Determine where the 1st and last bounding boxes
   // lie on the line reference frame
   var labelStartLineCoordinate = anchorLineCoordinate - 0.5 * labelLength;
