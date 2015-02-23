@@ -10,7 +10,6 @@ module.exports = {
 
 // Euclidean distance
 function getDistance(p0, p1) {
-  
   var a = p1.x - p0.x;
   var b = p1.y - p0.y;
 
@@ -26,23 +25,26 @@ function line2polyline(cumulativeDistances, lineDistance) {
 
   var segmentDistance = lineDistance - cumulativeDistances[segmentIndex];
 
-  return [segmentIndex, segmentDistance];
+  return {
+    segment: segmentIndex,
+    distance: segmentDistance
+  }
 }
 
-function polyline2xy(points, segmentIndex, segmentDistance) {
-  var p0 = points[segmentIndex];
-  var p1 = points[segmentIndex + 1];
-
+function polyline2xy(points, polylinePoint) {
+  var p0 = points[polylinePoint.segment];
+  var p1 = points[polylinePoint.segment + 1];
+  
   var x0 = p0.x, y0 = p0.y;
   var x1 = p1.x, y1 = p1.y;
 
   var direction = x1 > x0 ? 1 : -1;
   
   var m = (y1 - y0) / (x1 - x0);
-  var x = x0 + direction * Math.sqrt(segmentDistance * segmentDistance / (1 + m * m));
+  var x = x0 + direction * Math.sqrt(polylinePoint.distance * polylinePoint.distance / (1 + m * m));
   
-  var dy = m * (x - x0);
-  var y = dy + y0 || y0;
+  var dy = m * (x - x0) || polylinePoint.distance
+  var y = y0 + dy;
   
   return {x: x, y: y};
 }
@@ -86,12 +88,12 @@ function bboxifyLabel(polyline, anchor, labelLength, size) {
   for (var i = 0; i < nBoxes; i++) {
 
     var lineCoordinate = labelStartLineCoordinate + i * step;
-
+    
     // Convert to polyline reference frame
     var polylineCoordinate = line2polyline(cumulativeDistances, lineCoordinate);
 
     // Convert to canvas reference frame
-    var p = polyline2xy(polyline, polylineCoordinate[0], polylineCoordinate[1]);
+    var p = polyline2xy(polyline, polylineCoordinate, step);
     
     var distanceToAnchor = lineCoordinate - anchorLineCoordinate;
     
