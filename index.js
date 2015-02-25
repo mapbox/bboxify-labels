@@ -41,11 +41,13 @@ function polyline2xy(points, polylinePoint) {
   var direction = x1 > x0 ? 1 : -1;
   
   var m = (y1 - y0) / (x1 - x0);
-  var x = x0 + direction * Math.sqrt(polylinePoint.distance * polylinePoint.distance / (1 + m * m));
   
-  var dy = m * (x - x0) || polylinePoint.distance
+  var dx = direction * Math.sqrt(polylinePoint.distance * polylinePoint.distance / (1 + m * m));
+  var x = x0 + dx
+
+  var dy = isFinite(m) ? m * (x - x0) : polylinePoint.distance
   var y = y0 + dy;
-  
+
   return {x: x, y: y};
 }
 
