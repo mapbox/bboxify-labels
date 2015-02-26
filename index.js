@@ -87,7 +87,7 @@ function bboxifyLabel(polyline, anchor, labelLength, size) {
 
   // Create boxes with constant packing
   var bboxes = [];
-  for (var i = 0; i < nBoxes; i++) {
+  for (var i = 1; i < nBoxes; i++) {
 
     var lineCoordinate = labelStartLineCoordinate + i * step;
     
